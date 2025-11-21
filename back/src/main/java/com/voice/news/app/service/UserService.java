@@ -1,5 +1,6 @@
-package com.example.demo.service;
+package com.voice.news.app.service;
 
+import com.voice.news.app.model.User;
 import java.util.List;
 import java.util.Optional;
 
