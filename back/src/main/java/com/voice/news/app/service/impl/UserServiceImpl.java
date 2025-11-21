@@ -1,0 +1,54 @@
+package com.voice.news.app.service.impl;
+
+import com.voice.news.app.model.User;
+import com.voice.news.app.repository.UserRepository;
+import com.voice.news.app.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class UserServiceImpl implements UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public Optional<User> getUserById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    @Override
+    public User createUser(User user) {
+        // 可在这里加密码加密逻辑，如 BCrypt
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User updateUser(Long id, User user) {
+        return userRepository.findById(id)
+                .map(u -> {
+                    u.setUsername(user.getUsername());
+                    u.setEmail(user.getEmail());
+                    u.setPhone(user.getPhone());
+                    u.setPassword(user.getPassword());
+                    u.setAge(user.getAge());
+                    u.setHeight(user.getHeight());
+                    u.setGender(user.getGender());
+                    return userRepository.save(u);
+                })
+                .orElse(null);
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+}
