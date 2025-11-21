@@ -4,6 +4,8 @@ import com.voice.news.app.model.User;
 import com.voice.news.app.repository.UserRepository;
 import com.voice.news.app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +16,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public List<User> getAllUsers() {
@@ -27,7 +32,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(User user) {
-        // 可在这里加密码加密逻辑，如 BCrypt
+        if (StringUtils.hasText(user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         return userRepository.save(user);
     }
 
@@ -38,7 +45,9 @@ public class UserServiceImpl implements UserService {
                     u.setUsername(user.getUsername());
                     u.setEmail(user.getEmail());
                     u.setPhone(user.getPhone());
-                    u.setPassword(user.getPassword());
+                    if (StringUtils.hasText(user.getPassword())) {
+                        u.setPassword(passwordEncoder.encode(user.getPassword()));
+                    }
                     u.setAge(user.getAge());
                     u.setHeight(user.getHeight());
                     u.setGender(user.getGender());

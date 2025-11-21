@@ -28,10 +28,10 @@ public class AuthController {
                           TokenService tokenService,
                           PasswordEncoder passwordEncoder,
                           UserRepository userRepository) {
-        this.authenticationManager = authenticationManager;
-        this.tokenService = tokenService;
-        this.passwordEncoder = passwordEncoder;
-        this.userRepository = userRepository;
+      this.authenticationManager = authenticationManager;
+      this.tokenService = tokenService;
+      this.passwordEncoder = passwordEncoder;
+      this.userRepository = userRepository;
     }
 
     // 登录：username + password -> 返回 access + refresh
@@ -41,7 +41,7 @@ public class AuthController {
         Authentication auth = authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword())
         );
-        // 认证成功，生成 token
+
         AuthTokens tokens = tokenService.createTokens(req.getUsername());
         return ResponseEntity.ok(Map.of(
             "accessToken", tokens.getAccessToken(),
@@ -86,13 +86,13 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest req) {
         if (userRepository.findByUsername(req.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "用户名已存在"));
+          return ResponseEntity.badRequest().body(Map.of("error", "用户名已存在"));
         }
         if (userRepository.findByEmail(req.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "邮箱已存在"));
+          return ResponseEntity.badRequest().body(Map.of("error", "邮箱已存在"));
         }
         if (userRepository.findByPhone(req.getPhone()).isPresent()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "手机号已存在"));
+          return ResponseEntity.badRequest().body(Map.of("error", "手机号已存在"));
         }
         User u = new User();
         u.setUsername(req.getUsername());
