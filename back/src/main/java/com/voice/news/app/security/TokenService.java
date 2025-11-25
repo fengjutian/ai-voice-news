@@ -1,5 +1,7 @@
 package com.voice.news.app.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class TokenService {
 
+    private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
+    
     private final StringRedisTemplate redisTemplate;
     private final JwtUtil jwtUtil;
     private final JwtProperties jwtProperties;
@@ -24,23 +28,39 @@ public class TokenService {
     }
 
     public AuthTokens createTokens(String username) {
-        // access token claims 可放 roles 等（此示例简单）
-        String accessToken = jwtUtil.generateAccessToken(username, null);
+        logger.info("Creating tokens for user: {}", username);
+        try {
+            // access token claims 可放 roles 等（此示例简单）
+            String accessToken = jwtUtil.generateAccessToken(username, null);
+            logger.debug("Access token generated successfully for user: {}", username);
 
-        // refresh token 使用 id 管理
-        String refreshId = UUID.randomUUID().toString();
-        String refreshToken = jwtUtil.generateRefreshToken(username, refreshId);
+            // refresh token 使用 id 管理
+            String refreshId = UUID.randomUUID().toString();
+            String refreshToken = jwtUtil.generateRefreshToken(username, refreshId);
+            logger.debug("Refresh token generated successfully for user: {}", username);
 
-        // 将 refreshId 存 redis，过期时间与 refresh token 一致
-        String key = REFRESH_KEY_PREFIX + refreshId;
-        redisTemplate.opsForValue().set(key, username, jwtProperties.getRefreshTokenExpireSeconds(), TimeUnit.SECONDS);
+            try {
+                // 将 refreshId 存 redis，过期时间与 refresh token 一致
+                String key = REFRESH_KEY_PREFIX + refreshId;
+                redisTemplate.opsForValue().set(key, username, jwtProperties.getRefreshTokenExpireSeconds(), TimeUnit.SECONDS);
+                logger.debug("Refresh token stored in Redis with key: {}", key);
 
-        // 记录用户的 refreshId 列表（便于登出全部设备）
-        String userListKey = USER_REFRESH_LIST_PREFIX + username;
-        redisTemplate.opsForSet().add(userListKey, refreshId);
-        redisTemplate.expire(userListKey, Duration.ofSeconds(jwtProperties.getRefreshTokenExpireSeconds()));
+                // 记录用户的 refreshId 列表（便于登出全部设备）
+                String userListKey = USER_REFRESH_LIST_PREFIX + username;
+                redisTemplate.opsForSet().add(userListKey, refreshId);
+                redisTemplate.expire(userListKey, Duration.ofSeconds(jwtProperties.getRefreshTokenExpireSeconds()));
+                logger.debug("User refresh token list updated in Redis with key: {}", userListKey);
+            } catch (Exception e) {
+                logger.error("Failed to store tokens in Redis for user: {}", username, e);
+                throw new RuntimeException("Failed to store authentication tokens", e);
+            }
 
-        return new AuthTokens(accessToken, refreshToken);
+            logger.info("Tokens created successfully for user: {}", username);
+            return new AuthTokens(accessToken, refreshToken);
+        } catch (Exception e) {
+            logger.error("Error creating tokens for user: {}", username, e);
+            throw new RuntimeException("Failed to create authentication tokens", e);
+        }
     }
 
     public boolean validateRefreshToken(String refreshToken) {

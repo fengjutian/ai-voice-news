@@ -45,17 +45,28 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest req) {
       try {
+        // 1. 进行身份验证
         Authentication auth = authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword())
         );
 
+        // 2. 生成令牌
         AuthTokens tokens = tokenService.createTokens(req.getUsername());
+        
+        // 3. 返回成功响应
         return ResponseEntity.ok(Map.of(
             "accessToken", tokens.getAccessToken(),
             "refreshToken", tokens.getRefreshToken()
         ));
       } catch (BadCredentialsException ex) {
+        // 处理认证失败的情况
         return ResponseEntity.status(401).body(Map.of("error", "用户名或密码错误"));
+      } catch (Exception ex) {
+        // 处理其他所有异常，包括Redis连接问题、令牌生成问题等
+        // 记录异常日志
+        ex.printStackTrace();
+        // 返回友好的错误信息
+        return ResponseEntity.status(500).body(Map.of("error", "服务器内部错误，请稍后重试"));
       }
     }
 
