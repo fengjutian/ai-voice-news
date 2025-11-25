@@ -6,6 +6,8 @@ CREATE DATABASE IF NOT EXISTS `ai_voice_news`
 -- ② 切换到数据库
 USE `ai_voice_news`;
 
+DROP TABLE IF EXISTS `users`;
+
 -- ③ 创建 users 表
 CREATE TABLE `users` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -40,6 +42,24 @@ VALUES
 ('helen', 'FEMALE', 33, 1.65, 'helen@example.com', '13800000008', '$2a$10$GmNqB4X9g5R62lSlZZfEgeAaDnz1xFZXmp5GMzsaOEQhnIvOqnHkq', NOW(), NOW()),
 ('ivan', 'MALE', 22, 1.72, 'ivan@example.com', '13800000009', '$2a$10$GmNqB4X9g5R62lSlZZfEgeAaDnz1xFZXmp5GMzsaOEQhnIvOqnHkq', NOW(), NOW()),
 ('julia', 'FEMALE', 27, 1.68, 'julia@example.com', '13800000010', '$2a$10$GmNqB4X9g5R62lSlZZfEgeAaDnz1xFZXmp5GMzsaOEQhnIvOqnHkq', NOW(), NOW());
+
+DROP TABLE IF EXISTS `news`;
+
+CREATE TABLE `news` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `title` VARCHAR(500) NOT NULL COMMENT '新闻标题',
+  `summary` TEXT COMMENT '新闻摘要',
+  `content` LONGTEXT COMMENT '新闻正文',
+  `tags` VARCHAR(200) COMMENT '新闻标签，逗号分隔，例如 "科技,AI"',
+  `source` VARCHAR(200) COMMENT '新闻来源',
+  `url` VARCHAR(500) COMMENT '新闻原文链接',
+  `published_at` DATETIME COMMENT '新闻实际发布时间',
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '抓取时间',
+  PRIMARY KEY (`id`),
+  INDEX `idx_published_at` (`published_at`),
+  INDEX `idx_tags` (`tags`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 INSERT INTO `news` (title, summary, content, tags, source, url, published_at)
 VALUES
