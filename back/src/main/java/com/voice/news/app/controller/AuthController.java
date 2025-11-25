@@ -92,22 +92,40 @@ public class AuthController {
     // 注册示例（简化）
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest req) {
+        // 检查用户名唯一性
         if (userRepository.findByUsername(req.getUsername()).isPresent()) {
           return ResponseEntity.badRequest().body(Map.of("error", "用户名已存在"));
         }
+        // 检查邮箱唯一性
         if (userRepository.findByEmail(req.getEmail()).isPresent()) {
           return ResponseEntity.badRequest().body(Map.of("error", "邮箱已存在"));
         }
+        // 检查手机号唯一性
         if (userRepository.findByPhone(req.getPhone()).isPresent()) {
           return ResponseEntity.badRequest().body(Map.of("error", "手机号已存在"));
         }
+        
+        // 密码复杂度验证
+        if (req.getPassword().length() < 6) {
+            return ResponseEntity.badRequest().body(Map.of("error", "密码长度不能少于6位"));
+        }
+        
+        // 创建用户对象并设置属性
         User u = new User();
         u.setUsername(req.getUsername());
         u.setPassword(passwordEncoder.encode(req.getPassword()));
         u.setEmail(req.getEmail());
         u.setPhone(req.getPhone());
-        userRepository.save(u);
-        return ResponseEntity.ok(Map.of("status", "created"));
+        
+        // 保存用户到数据库
+        User savedUser = userRepository.save(u);
+        
+        // 返回成功响应，不包含敏感信息
+        return ResponseEntity.ok(Map.of(
+            "status", "created",
+            "username", savedUser.getUsername(),
+            "message", "用户注册成功"
+        ));
     }
 
     // DTOs
@@ -124,14 +142,17 @@ public class AuthController {
     }
 
     public static class RegisterRequest {
-        @NotBlank
+        @NotBlank(message = "用户名不能为空")
         private String username;
-        @NotBlank
+        
+        @NotBlank(message = "密码不能为空")
         private String password;
-        @Email
-        @NotBlank
+        
+        @Email(message = "邮箱格式不正确")
+        @NotBlank(message = "邮箱不能为空")
         private String email;
-        @NotBlank
+        
+        @NotBlank(message = "手机号不能为空")
         private String phone;
         // getters/setters
         public String getUsername() { return username; }
