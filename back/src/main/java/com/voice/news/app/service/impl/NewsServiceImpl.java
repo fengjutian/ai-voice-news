@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.voice.news.app.entity.News;
@@ -22,7 +24,9 @@ public class NewsServiceImpl implements NewsService {
     
     @Override
     public List<News> getLatestNews(int limit) {
-        return newsRepository.findTopByOrderByPublishedAtDesc(limit);
+        // 创建Pageable对象，使用PageRequest.ofSize指定返回数量
+        Pageable pageable = PageRequest.ofSize(limit);
+        return newsRepository.findByOrderByPublishedAtDesc(pageable);
     }
     
     @Override

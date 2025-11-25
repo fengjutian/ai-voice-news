@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,11 +19,11 @@ import com.voice.news.app.entity.News;
 public interface NewsRepository extends JpaRepository<News, Long> {
     
     /**
-     * 根据发布时间倒序查询新闻列表
-     * @param limit 查询数量限制
+     * 根据发布时间倒序查询新闻列表，使用Pageable控制返回数量
+     * @param pageable 分页参数，使用PageRequest.ofSize(limit)创建
      * @return 新闻列表
      */
-    List<News> findTopByOrderByPublishedAtDesc(int limit);
+    List<News> findByOrderByPublishedAtDesc(Pageable pageable);
     
     /**
      * 根据标签查询新闻
