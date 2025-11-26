@@ -21,11 +21,16 @@ class _HomePageState extends State<HomePage> {
   LoopMode _loopMode = LoopMode.off;
   int _currentIndex = 0;
   final List<Map<String, String>> _tracks = [
-    {'title': 'Mojito - 周杰伦', 'asset': 'assets/audio/Mojito_周杰伦.mp3'},
-    {'title': '发如雪 - 周杰伦', 'asset': 'assets/audio/发如雪-周杰伦.mp3'},
+    {'title': 'Mojito - 周杰伦', 'asset': 'assets/audio/mojito.mp3'},
+    {'title': '十年 - 陈奕迅', 'asset': 'assets/audio/十年_陈奕迅.mp3'},
+    {'title': '发如雪 - 周杰伦', 'asset': 'assets/audio/发如雪_周杰伦.mp3'},
     {'title': '告白气球', 'asset': 'assets/audio/告白气球.mp3'},
-    {'title': '烟花易冷 - 周杰伦', 'asset': 'assets/audio/烟花易冷-周杰伦.mp3'},
-    {'title': '稻香 - 周杰伦', 'asset': 'assets/audio/稻香-周杰伦.mp3'},
+    {'title': '最伟大的作品 - 周杰伦', 'asset': 'assets/audio/最伟大的作品_周杰伦.mp3'},
+    {'title': '泡沫 - 邓紫棋', 'asset': 'assets/audio/泡沫_邓紫棋.mp3'},
+    {'title': '烟花易冷 - 周杰伦', 'asset': 'assets/audio/烟花易冷_周杰伦.mp3'},
+    {'title': '稻香 - 周杰伦', 'asset': 'assets/audio/稻香_周杰伦.mp3'},
+    {'title': '诺言 - 郭有才版', 'asset': 'assets/audio/诺言_郭有才版.mp3'},
+    {'title': '长安姑娘 - 李常超', 'asset': 'assets/audio/长安姑娘_李常超.mp3'},
   ];
 
   @override
@@ -34,8 +39,9 @@ class _HomePageState extends State<HomePage> {
     _init();
     _player.playbackEventStream.listen(
       (_) {},
-      onError: (Object e, StackTrace s) {
+      onError: (Object e, StackTrace s) async {
         setState(() => _error = e.toString());
+        await _skipBadSource();
       },
     );
     _player.currentIndexStream.listen((i) {
@@ -313,6 +319,13 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _skipBadSource() async {
+    try {
+      await _player.seekToNext();
+      await _player.play();
+    } catch (_) {}
   }
 
   String get _currentTitle {
