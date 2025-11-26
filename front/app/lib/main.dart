@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ai_voice_news/front/app/lib/pages/HomePage.dart';
-import 'package:ai_voice_news/front/app/lib/pages/MarketPage.dart';
-import 'package:ai_voice_news/front/app/lib/pages/ProfilePage.dart';
+import 'package:app/pages/HomePage.dart';
+import 'package:app/pages/MarketPage.dart';
+import 'package:app/pages/ProfilePage.dart';
 
 void main() {
   runApp(const MyApp());
