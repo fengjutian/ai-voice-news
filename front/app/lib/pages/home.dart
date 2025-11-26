@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,11 +21,11 @@ class _HomePageState extends State<HomePage> {
   LoopMode _loopMode = LoopMode.off;
   int _currentIndex = 0;
   final List<Map<String, String>> _tracks = [
-    {'title': 'Mojito - 周杰伦', 'asset': 'assets/audio/Mojito-周杰伦.mp3'},
+    {'title': 'Mojito - 周杰伦', 'asset': 'assets/audio/Mojito_周杰伦.mp3'},
     {'title': '发如雪 - 周杰伦', 'asset': 'assets/audio/发如雪-周杰伦.mp3'},
     {'title': '告白气球', 'asset': 'assets/audio/告白气球.mp3'},
     {'title': '烟花易冷 - 周杰伦', 'asset': 'assets/audio/烟花易冷-周杰伦.mp3'},
-    {'title': '稻香 - 周杰伦', 'asset': 'assets/audio/稻香-周杰伦#aeUJ.mp3'},
+    {'title': '稻香 - 周杰伦', 'asset': 'assets/audio/稻香-周杰伦.mp3'},
   ];
 
   @override
@@ -44,9 +45,11 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _init() async {
     try {
-      final sources = _tracks
-          .map((t) => AudioSource.asset(t['asset']!))
-          .toList();
+      final sources = await _resolveSources();
+      if (sources.isEmpty) {
+        setState(() => _error = '未找到可用音频资源');
+        return;
+      }
       final playlist = ConcatenatingAudioSource(
         children: sources,
         useLazyPreparation: true,
@@ -63,6 +66,18 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       setState(() => _error = e.toString());
     }
+  }
+
+  Future<List<AudioSource>> _resolveSources() async {
+    final List<AudioSource> list = [];
+    for (final t in _tracks) {
+      final a = t['asset']!;
+      try {
+        await rootBundle.load(a);
+        list.add(AudioSource.asset(a));
+      } catch (_) {}
+    }
+    return list;
   }
 
   @override
