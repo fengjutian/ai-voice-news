@@ -14,7 +14,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final AudioPlayer _player = AudioPlayer();
   bool _ready = false;
-  String? _error;
   double _volume = 1.0;
   double _speed = 1.0;
   Duration? _duration;
@@ -43,7 +42,7 @@ class _HomePageState extends State<HomePage> {
     _player.playbackEventStream.listen(
       (_) {},
       onError: (Object e, StackTrace s) async {
-        setState(() => _error = e.toString());
+        _showToast('播放错误: $e');
         await _skipBadSource();
       },
     );
@@ -56,7 +55,7 @@ class _HomePageState extends State<HomePage> {
     try {
       final sources = await _resolveSources();
       if (sources.isEmpty) {
-        setState(() => _error = '未找到可用音频资源');
+        _showToast('未找到可用音频资源');
         return;
       }
       final playlist = ConcatenatingAudioSource(
@@ -73,7 +72,7 @@ class _HomePageState extends State<HomePage> {
       await _player.load();
       await _player.play();
     } catch (e) {
-      setState(() => _error = e.toString());
+      _showToast('初始化错误: $e');
     }
   }
 
@@ -139,8 +138,6 @@ class _HomePageState extends State<HomePage> {
             controller: _scroll,
             child: Column(
               children: [
-                if (_error != null)
-                  Text(_error!, style: const TextStyle(color: Colors.red)),
                 Container(
                   height: 160,
                   width: double.infinity,
@@ -384,5 +381,25 @@ class _HomePageState extends State<HomePage> {
     final s = _two(d.inSeconds.remainder(60));
     final h = d.inHours;
     return h > 0 ? '$h:$m:$s' : '$m:$s';
+  }
+
+  void _showToast(String msg) {
+    final snack = SnackBar(
+      content: Row(
+        children: [
+          const Icon(Icons.info_outline, color: Colors.white),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(msg, style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+      backgroundColor: const Color(0xFF1ED860),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.all(12),
+      duration: const Duration(seconds: 2),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snack);
   }
 }
