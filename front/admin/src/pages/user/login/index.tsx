@@ -133,7 +133,7 @@ const Login: React.FC = () => {
   const handleSubmit = async (values: API.LoginParams) => {
     try {
       const msg = await login({ ...values, type });
-      if (msg.status === 'ok') {
+      if (msg.code === 0) {
         const defaultLoginSuccessMessage = intl.formatMessage({
           id: 'pages.login.success',
           defaultMessage: '登录成功！',
