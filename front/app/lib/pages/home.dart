@@ -37,6 +37,12 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _init();
+    _player.playbackEventStream.listen(
+      (_) {},
+      onError: (Object e, StackTrace s) {
+        setState(() => _error = e.toString());
+      },
+    );
   }
 
   Future<void> _init() async {
