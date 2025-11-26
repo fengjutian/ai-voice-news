@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:just_audio/just_audio.dart';
+import 'dart:io';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -76,11 +78,14 @@ class _HomePageState extends State<HomePage> {
 
   Future<List<AudioSource>> _resolveSources() async {
     final List<AudioSource> list = [];
+    final dir = await getTemporaryDirectory();
     for (final t in _tracks) {
       final a = t['asset']!;
       try {
-        await rootBundle.load(a);
-        list.add(AudioSource.asset(a));
+        final data = await rootBundle.load(a);
+        final file = File('${dir.path}/${a.split('/').last}');
+        await file.writeAsBytes(data.buffer.asUint8List(), flush: true);
+        list.add(AudioSource.file(file.path));
       } catch (_) {}
     }
     return list;
