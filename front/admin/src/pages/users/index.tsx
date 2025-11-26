@@ -108,7 +108,7 @@ const Users: React.FC = () => {
           values={record}
         />,
         <a key="subscribeAlert" href="https://procomponents.ant.design/">
-          新建
+          编辑
         </a>,
       ],
     },
