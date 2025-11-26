@@ -22,7 +22,7 @@ export async function outLogin(options?: { [key: string]: any }) {
 
 /** 登录接口 POST /api/login/account */
 export async function login(body: API.LoginParams, options?: { [key: string]: any }) {
-  return request<API.LoginResult>('/api/auth/login', {
+  const response = await request<API.LoginResult>('/api/auth/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -30,6 +30,15 @@ export async function login(body: API.LoginParams, options?: { [key: string]: an
     data: body,
     ...(options || {}),
   });
+
+  console.log(response);
+
+  // 登录成功后，将token保存到localStorage
+  if (response?.data?.accessToken) {
+    localStorage.setItem('token', response.data.accessToken);
+  }
+
+  return response;
 }
 
 /** 此处后端没有提供注释 GET /api/notices */

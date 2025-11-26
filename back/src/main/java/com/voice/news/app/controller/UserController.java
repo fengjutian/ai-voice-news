@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.voice.news.app.common.R;
@@ -72,8 +72,19 @@ public class UserController {
 
     @GetMapping("/currentUser")
     @Operation(summary = "根据token获取当前用户信息")
-    public R<User> getCurrentUser(@RequestParam String token) {
+    public R<User> getCurrentUser(@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         try {
+            // 从Authorization header中获取token
+            // 通常Authorization header格式为 "Bearer {token}"
+            String token = null;
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                token = authorizationHeader.substring(7); // 移除"Bearer "前缀
+            }
+            
+            if (token == null || token.isEmpty()) {
+                return R.error(ErrorCode.UNAUTHORIZED.code, "缺少token参数");
+            }
+            
             // 解析token获取用户名
             String username = jwtUtil.parseToken(token).getBody().getSubject();
             

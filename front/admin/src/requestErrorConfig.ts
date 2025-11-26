@@ -89,15 +89,15 @@ export const errorConfig: RequestConfig = {
   requestInterceptors: [
     (config: RequestOptions) => {
       // 拦截请求配置，进行个性化处理。
-      // 所有请求类型都通过请求体传递token
-      // 确保data对象存在
-      const data = config?.data || {};
-      // 将token添加到请求体
+      // 从localStorage读取token
+      const token = localStorage.getItem('token') || '';
+
+      // 将token添加到Authorization header
       return {
         ...config,
-        data: {
-          ...data,
-          token: '123',
+        headers: {
+          ...config.headers,
+          Authorization: token ? `Bearer ${token}` : '',
         },
       };
     },
