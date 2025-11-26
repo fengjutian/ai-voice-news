@@ -55,6 +55,7 @@ class _HomePageState extends State<HomePage> {
         initialPosition: Duration.zero,
       );
       setState(() => _ready = true);
+      await _player.play();
     } catch (e) {
       setState(() => _error = e.toString());
     }
