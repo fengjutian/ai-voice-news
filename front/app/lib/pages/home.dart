@@ -89,7 +89,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('首页')),
+      appBar: AppBar(title: const Text('AI 语音新闻')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
