@@ -13,6 +13,7 @@ import { FormattedMessage, useIntl, useRequest } from '@umijs/max';
 import { Button, Drawer, Input, message } from 'antd';
 import React, { useCallback, useRef, useState } from 'react';
 import { removeRule, rule } from '@/services/ant-design-pro/api';
+import { getUsers } from '@/services/ant-design-pro/users';
 import CreateForm from './components/CreateForm';
 import UpdateForm from './components/UpdateForm';
 
@@ -46,13 +47,8 @@ const Users: React.FC = () => {
 
   const columns: ProColumns<API.RuleListItem>[] = [
     {
-      title: (
-        <FormattedMessage
-          id="pages.searchTable.updateForm.ruleName.nameLabel"
-          defaultMessage="Rule name"
-        />
-      ),
-      dataIndex: 'name',
+      title: '姓名',
+      dataIndex: 'username',
       render: (dom, entity) => {
         return (
           <a
@@ -67,107 +63,29 @@ const Users: React.FC = () => {
       },
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.searchTable.titleDesc"
-          defaultMessage="Description"
-        />
-      ),
-      dataIndex: 'desc',
+      title: '性别',
+      dataIndex: 'gender',
       valueType: 'textarea',
-    },
-    {
-      title: (
-        <FormattedMessage
-          id="pages.searchTable.titleCallNo"
-          defaultMessage="Number of service calls"
-        />
-      ),
-      dataIndex: 'callNo',
-      sorter: true,
-      hideInForm: true,
-      renderText: (val: string) =>
-        `${val}${intl.formatMessage({
-          id: 'pages.searchTable.tenThousand',
-          defaultMessage: ' 万 ',
-        })}`,
-    },
-    {
-      title: (
-        <FormattedMessage
-          id="pages.searchTable.titleStatus"
-          defaultMessage="Status"
-        />
-      ),
-      dataIndex: 'status',
-      hideInForm: true,
-      valueEnum: {
-        0: {
-          text: (
-            <FormattedMessage
-              id="pages.searchTable.nameStatus.default"
-              defaultMessage="Shut down"
-            />
-          ),
-          status: 'Default',
-        },
-        1: {
-          text: (
-            <FormattedMessage
-              id="pages.searchTable.nameStatus.running"
-              defaultMessage="Running"
-            />
-          ),
-          status: 'Processing',
-        },
-        2: {
-          text: (
-            <FormattedMessage
-              id="pages.searchTable.nameStatus.online"
-              defaultMessage="Online"
-            />
-          ),
-          status: 'Success',
-        },
-        3: {
-          text: (
-            <FormattedMessage
-              id="pages.searchTable.nameStatus.abnormal"
-              defaultMessage="Abnormal"
-            />
-          ),
-          status: 'Error',
-        },
+      render: (dom, entity) => {
+        return dom === 'FEMALE' ? '女' : '男';
       },
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.searchTable.titleUpdatedAt"
-          defaultMessage="Last scheduled time"
-        />
-      ),
+      title: '年龄',
+      dataIndex: 'age',
       sorter: true,
-      dataIndex: 'updatedAt',
-      valueType: 'dateTime',
-      renderFormItem: (item, { defaultRender, ...rest }, form) => {
-        const status = form.getFieldValue('status');
-        if (`${status}` === '0') {
-          return false;
-        }
-        if (`${status}` === '3') {
-          return (
-            <Input
-              {...rest}
-              placeholder={intl.formatMessage({
-                id: 'pages.searchTable.exception',
-                defaultMessage: 'Please enter the reason for the exception!',
-              })}
-            />
-          );
-        }
-        return defaultRender(item);
-      },
+      hideInForm: true
+    },
+    {
+      title: '邮箱',
+      dataIndex: 'email',
+      hideInForm: true
+    },
+    {
+      title: '手机号',
+      sorter: true,
+      dataIndex: 'phone',
+      valueType: 'dateTime'
     },
     {
       title: (
@@ -182,10 +100,7 @@ const Users: React.FC = () => {
         <UpdateForm
           trigger={
             <a>
-              <FormattedMessage
-                id="pages.searchTable.config"
-                defaultMessage="Configuration"
-              />
+              删除
             </a>
           }
           key="config"
@@ -193,10 +108,7 @@ const Users: React.FC = () => {
           values={record}
         />,
         <a key="subscribeAlert" href="https://procomponents.ant.design/">
-          <FormattedMessage
-            id="pages.searchTable.subscribeAlert"
-            defaultMessage="Subscribe to alerts"
-          />
+          新建
         </a>,
       ],
     },
@@ -241,7 +153,7 @@ const Users: React.FC = () => {
         toolBarRender={() => [
           <CreateForm key="create" reload={actionRef.current?.reload} />,
         ]}
-        request={rule}
+        request={getUsers}
         columns={columns}
         rowSelection={{
           onChange: (_, selectedRows) => {
