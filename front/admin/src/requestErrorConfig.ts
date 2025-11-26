@@ -89,8 +89,17 @@ export const errorConfig: RequestConfig = {
   requestInterceptors: [
     (config: RequestOptions) => {
       // 拦截请求配置，进行个性化处理。
-      const url = config?.url?.concat('?token=123');
-      return { ...config, url };
+      // 所有请求类型都通过请求体传递token
+      // 确保data对象存在
+      const data = config?.data || {};
+      // 将token添加到请求体
+      return {
+        ...config,
+        data: {
+          ...data,
+          token: '123',
+        },
+      };
     },
   ],
 
