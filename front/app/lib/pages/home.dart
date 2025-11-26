@@ -102,7 +102,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('AI 语音新闻')),
       body: Scrollbar(
         controller: _scroll,
         child: Padding(
