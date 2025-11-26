@@ -102,6 +102,35 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('AI 语音新闻'),
+        centerTitle: true,
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+        ),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF1ED860), Color(0xFF12B34F)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(_shuffleEnabled ? Icons.shuffle_on : Icons.shuffle),
+            onPressed: _ready
+                ? () async {
+                    final v = !_shuffleEnabled;
+                    setState(() => _shuffleEnabled = v);
+                    await _player.setShuffleModeEnabled(v);
+                  }
+                : null,
+          ),
+        ],
+      ),
       body: Scrollbar(
         controller: _scroll,
         child: Padding(
