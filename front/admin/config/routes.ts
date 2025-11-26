@@ -52,6 +52,18 @@ export default [
     component: './table-list',
   },
   {
+    name: '新闻',
+    icon: 'table',
+    path: '/news',
+    component: './news',
+  },
+  {
+    name: '用户',
+    icon: 'table',
+    path: '/users',
+    component: './users',
+  },
+  {
     path: '/',
     redirect: '/welcome',
   },
