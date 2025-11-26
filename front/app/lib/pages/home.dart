@@ -208,53 +208,55 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ChoiceChip(
-                      label: const Text('循环:关'),
-                      selected: _loopMode == LoopMode.off,
-                      onSelected: _ready
-                          ? (_) {
-                              setState(() => _loopMode = LoopMode.off);
-                              _player.setLoopMode(LoopMode.off);
-                            }
-                          : null,
-                    ),
-                    const SizedBox(width: 8),
-                    ChoiceChip(
-                      label: const Text('循环:列表'),
-                      selected: _loopMode == LoopMode.all,
-                      onSelected: _ready
-                          ? (_) {
-                              setState(() => _loopMode = LoopMode.all);
-                              _player.setLoopMode(LoopMode.all);
-                            }
-                          : null,
-                    ),
-                    const SizedBox(width: 8),
-                    ChoiceChip(
-                      label: const Text('循环:单曲'),
-                      selected: _loopMode == LoopMode.one,
-                      onSelected: _ready
-                          ? (_) {
-                              setState(() => _loopMode = LoopMode.one);
-                              _player.setLoopMode(LoopMode.one);
-                            }
-                          : null,
-                    ),
-                    const SizedBox(width: 12),
-                    FilterChip(
-                      label: const Text('随机'),
-                      selected: _shuffleEnabled,
-                      onSelected: _ready
-                          ? (v) {
-                              setState(() => _shuffleEnabled = v);
-                              _player.setShuffleModeEnabled(v);
-                            }
-                          : null,
-                    ),
-                  ],
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      ChoiceChip(
+                        label: const Text('循环:关'),
+                        selected: _loopMode == LoopMode.off,
+                        onSelected: _ready
+                            ? (_) {
+                                setState(() => _loopMode = LoopMode.off);
+                                _player.setLoopMode(LoopMode.off);
+                              }
+                            : null,
+                      ),
+                      const SizedBox(width: 8),
+                      ChoiceChip(
+                        label: const Text('循环:列表'),
+                        selected: _loopMode == LoopMode.all,
+                        onSelected: _ready
+                            ? (_) {
+                                setState(() => _loopMode = LoopMode.all);
+                                _player.setLoopMode(LoopMode.all);
+                              }
+                            : null,
+                      ),
+                      const SizedBox(width: 8),
+                      ChoiceChip(
+                        label: const Text('循环:单曲'),
+                        selected: _loopMode == LoopMode.one,
+                        onSelected: _ready
+                            ? (_) {
+                                setState(() => _loopMode = LoopMode.one);
+                                _player.setLoopMode(LoopMode.one);
+                              }
+                            : null,
+                      ),
+                      const SizedBox(width: 12),
+                      FilterChip(
+                        label: const Text('随机'),
+                        selected: _shuffleEnabled,
+                        onSelected: _ready
+                            ? (v) {
+                                setState(() => _shuffleEnabled = v);
+                                _player.setShuffleModeEnabled(v);
+                              }
+                            : null,
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 12),
                 StreamBuilder<Duration?>(
