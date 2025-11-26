@@ -18,6 +18,7 @@ class _HomePageState extends State<HomePage> {
   double? _dragValue;
   bool _shuffleEnabled = false;
   LoopMode _loopMode = LoopMode.off;
+  int _currentIndex = 0;
   final List<Map<String, String>> _tracks = [
     {
       'title': 'A Salute To Head-Scratching Science',
@@ -40,6 +41,9 @@ class _HomePageState extends State<HomePage> {
         setState(() => _error = e.toString());
       },
     );
+    _player.currentIndexStream.listen((i) {
+      if (i != null) setState(() => _currentIndex = i);
+    });
   }
 
   Future<void> _init() async {
@@ -58,6 +62,7 @@ class _HomePageState extends State<HomePage> {
         initialPosition: Duration.zero,
       );
       setState(() => _ready = true);
+      await _player.load();
       await _player.play();
     } catch (e) {
       setState(() => _error = e.toString());
@@ -137,7 +142,12 @@ class _HomePageState extends State<HomePage> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.skip_previous),
-                  onPressed: _ready ? () => _player.seekToPrevious() : null,
+                  onPressed: _ready
+                      ? () async {
+                          await _player.seekToPrevious();
+                          await _player.play();
+                        }
+                      : null,
                 ),
                 StreamBuilder<PlayerState>(
                   stream: _player.playerStateStream,
@@ -157,7 +167,12 @@ class _HomePageState extends State<HomePage> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.skip_next),
-                  onPressed: _ready ? () => _player.seekToNext() : null,
+                  onPressed: _ready
+                      ? () async {
+                          await _player.seekToNext();
+                          await _player.play();
+                        }
+                      : null,
                 ),
               ],
             ),
@@ -269,12 +284,15 @@ class _HomePageState extends State<HomePage> {
               child: ListView.builder(
                 itemCount: _tracks.length,
                 itemBuilder: (context, i) {
-                  final selected = i == (_player.currentIndex ?? 0);
+                  final selected = i == _currentIndex;
                   return ListTile(
                     title: Text(_tracks[i]['title']!),
                     selected: selected,
                     onTap: _ready
-                        ? () => _player.seek(Duration.zero, index: i)
+                        ? () async {
+                            await _player.seek(Duration.zero, index: i);
+                            await _player.play();
+                          }
                         : null,
                   );
                 },
@@ -287,8 +305,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   String get _currentTitle {
-    final i = _player.currentIndex ?? 0;
-    return _tracks[i]['title']!;
+    return _tracks[_currentIndex]['title']!;
   }
 
   String _two(int n) => n.toString().padLeft(2, '0');
