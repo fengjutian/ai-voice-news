@@ -20,15 +20,11 @@ class _HomePageState extends State<HomePage> {
   LoopMode _loopMode = LoopMode.off;
   int _currentIndex = 0;
   final List<Map<String, String>> _tracks = [
-    {
-      'title': 'A Salute To Head-Scratching Science',
-      'asset': 'assets/audio/SoundHelix-Song-1.mp3',
-    },
-    {'title': 'Nature Sounds', 'asset': 'assets/audio/SoundHelix-Song-1.mp3'},
-    {
-      'title': 'From Cat Rheology To Operatic Incompetence',
-      'asset': 'assets/audio/SoundHelix-Song-1.mp3',
-    },
+    {'title': 'Mojito - 周杰伦', 'asset': 'assets/audio/Mojito-周杰伦.mp3'},
+    {'title': '发如雪 - 周杰伦', 'asset': 'assets/audio/发如雪-周杰伦.mp3'},
+    {'title': '告白气球', 'asset': 'assets/audio/告白气球.mp3'},
+    {'title': '烟花易冷 - 周杰伦', 'asset': 'assets/audio/烟花易冷-周杰伦.mp3'},
+    {'title': '稻香 - 周杰伦', 'asset': 'assets/audio/稻香-周杰伦#aeUJ.mp3'},
   ];
 
   @override
