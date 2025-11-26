@@ -2,7 +2,6 @@ package com.voice.news.app.controller;
 
 import java.util.Map;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.voice.news.app.common.R;
+import com.voice.news.app.exception.ErrorCode;
 import com.voice.news.app.model.User;
 import com.voice.news.app.repository.UserRepository;
 import com.voice.news.app.security.AuthTokens;
@@ -43,7 +44,7 @@ public class AuthController {
 
     // 登录：username + password -> 返回 access + refresh
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest req) {
+    public R<Map<String, String>> login(@RequestBody @Valid LoginRequest req) {
       try {
         // 1. 进行身份验证
         Authentication auth = authenticationManager.authenticate(
@@ -54,28 +55,28 @@ public class AuthController {
         AuthTokens tokens = tokenService.createTokens(req.getUsername());
         
         // 3. 返回成功响应
-        return ResponseEntity.ok(Map.of(
+        return R.ok(Map.of(
             "accessToken", tokens.getAccessToken(),
             "refreshToken", tokens.getRefreshToken()
         ));
       } catch (BadCredentialsException ex) {
         // 处理认证失败的情况
-        return ResponseEntity.status(401).body(Map.of("error", "用户名或密码错误"));
+        return R.error(ErrorCode.UNAUTHORIZED.code, "用户名或密码错误");
       } catch (Exception ex) {
         // 处理其他所有异常，包括Redis连接问题、令牌生成问题等
         // 记录异常日志
         ex.printStackTrace();
         // 返回友好的错误信息
-        return ResponseEntity.status(500).body(Map.of("error", "服务器内部错误，请稍后重试"));
+        return R.error(ErrorCode.SERVER_ERROR.code, "服务器内部错误，请稍后重试");
       }
     }
 
     // 刷新 access token：传 refreshToken -> 返回新 accessToken (并可返回新 refreshToken，下面做同样逻辑)
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestBody Map<String, String> body) {
+    public R<Map<String, String>> refresh(@RequestBody Map<String, String> body) {
         String refreshToken = body.get("refreshToken");
         if (refreshToken == null || !tokenService.validateRefreshToken(refreshToken)) {
-            return ResponseEntity.status(401).body(Map.of("error", "Refresh token 无效或已过期"));
+            return R.error(ErrorCode.UNAUTHORIZED.code, "Refresh token 无效或已过期");
         }
         String username = tokenService.getUsernameFromRefreshToken(refreshToken);
 
@@ -83,7 +84,7 @@ public class AuthController {
         tokenService.revokeRefreshToken(refreshToken);
         // 生成新的一组 tokens
         AuthTokens tokens = tokenService.createTokens(username);
-        return ResponseEntity.ok(Map.of(
+        return R.ok(Map.of(
                 "accessToken", tokens.getAccessToken(),
                 "refreshToken", tokens.getRefreshToken()
         ));
@@ -91,34 +92,34 @@ public class AuthController {
 
     // 登出：撤销传入的 refresh token（前端应把 access token 删掉）
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody Map<String, String> body) {
+    public R<Map<String, String>> logout(@RequestBody Map<String, String> body) {
         String refreshToken = body.get("refreshToken");
         if (refreshToken != null) {
             tokenService.revokeRefreshToken(refreshToken);
         }
         // 如果想登出当前用户全部设备，可调用 tokenService.revokeAllForUser(username)
-        return ResponseEntity.ok(Map.of("status", "ok"));
+        return R.ok(Map.of("status", "ok"));
     }
 
     // 注册示例（简化）
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest req) {
+    public R<Map<String, String>> register(@RequestBody @Valid RegisterRequest req) {
         // 检查用户名唯一性
         if (userRepository.findByUsername(req.getUsername()).isPresent()) {
-          return ResponseEntity.badRequest().body(Map.of("error", "用户名已存在"));
+          return R.error(ErrorCode.PARAM_ERROR.code, "用户名已存在");
         }
         // 检查邮箱唯一性
         if (userRepository.findByEmail(req.getEmail()).isPresent()) {
-          return ResponseEntity.badRequest().body(Map.of("error", "邮箱已存在"));
+          return R.error(ErrorCode.PARAM_ERROR.code, "邮箱已存在");
         }
         // 检查手机号唯一性
         if (userRepository.findByPhone(req.getPhone()).isPresent()) {
-          return ResponseEntity.badRequest().body(Map.of("error", "手机号已存在"));
+          return R.error(ErrorCode.PARAM_ERROR.code, "手机号已存在");
         }
         
         // 密码复杂度验证
         if (req.getPassword().length() < 6) {
-            return ResponseEntity.badRequest().body(Map.of("error", "密码长度不能少于6位"));
+            return R.error(ErrorCode.PARAM_ERROR.code, "密码长度不能少于6位");
         }
         
         // 创建用户对象并设置属性
@@ -132,7 +133,7 @@ public class AuthController {
         User savedUser = userRepository.save(u);
         
         // 返回成功响应，不包含敏感信息
-        return ResponseEntity.ok(Map.of(
+        return R.ok(Map.of(
             "status", "created",
             "username", savedUser.getUsername(),
             "message", "用户注册成功"
