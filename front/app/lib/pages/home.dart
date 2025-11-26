@@ -21,15 +21,12 @@ class _HomePageState extends State<HomePage> {
   final List<Map<String, String>> _tracks = [
     {
       'title': 'A Salute To Head-Scratching Science',
-      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+      'asset': 'assets/audio/SoundHelix-Song-1.mp3',
     },
-    {
-      'title': 'Nature Sounds',
-      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-    },
+    {'title': 'Nature Sounds', 'asset': 'assets/audio/SoundHelix-Song-1.mp3'},
     {
       'title': 'From Cat Rheology To Operatic Incompetence',
-      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+      'asset': 'assets/audio/SoundHelix-Song-1.mp3',
     },
   ];
 
@@ -48,7 +45,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _init() async {
     try {
       final sources = _tracks
-          .map((t) => AudioSource.uri(Uri.parse(t['url']!)))
+          .map((t) => AudioSource.asset(t['asset']!))
           .toList();
       final playlist = ConcatenatingAudioSource(
         children: sources,
